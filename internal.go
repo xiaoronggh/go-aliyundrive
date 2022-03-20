@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 chyroc
+ * Copyright 2022 xiaoronggh
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import (
 	"github.com/chyroc/gorequests"
 	"github.com/sirupsen/logrus"
 
-	"github.com/chyroc/go-aliyundrive/internal/helper_tool"
+	"github.com/xiaoronggh/go-aliyundrive/internal/helper_tool"
 )
 
 type RawRequestReq struct {

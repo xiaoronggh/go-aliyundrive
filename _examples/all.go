@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/chyroc/go-aliyundrive"
+	"github.com/xiaoronggh/go-aliyundrive"
 )
 
 func main() {

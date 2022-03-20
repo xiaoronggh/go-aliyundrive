@@ -76,7 +76,7 @@ type LoginUIQrCode struct {
 func (u *LoginUIQrCode) Show(content string) {
 	app := app.New()
 	u.w = app.NewWindow("登录")
-	u.l = widget.NewLabel("Please use the mobile client to scan the code to log in")
+	u.l = widget.NewLabel("scan the code to log in")
 	png, err := qrcode2.Encode(content, qrcode2.Medium, 256)
 	if err != nil {
 		panic(err)
@@ -100,7 +100,7 @@ func (u *LoginUIQrCode) Show(content string) {
 func (*LoginUIQrCode) EventNew(res *queryQrCodeResp) {
 }
 func (u *LoginUIQrCode) EventScanned(res *queryQrCodeResp) {
-	u.l.SetText("The scan is successful. Please confirm your login according to the prompt on your mobile phone")
+	u.l.SetText("scan successful")
 }
 func (u *LoginUIQrCode) EventExpired(res *queryQrCodeResp) {
 	u.l.SetText("qr code expired")

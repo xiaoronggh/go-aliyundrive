@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 chyroc
+ * Copyright 2022 xiaoronggh
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import (
 
 	"github.com/chyroc/gorequests"
 
-	"github.com/chyroc/go-aliyundrive/internal/helper_config"
+	"github.com/xiaoronggh/go-aliyundrive/internal/helper_config"
 )
 
 type AliyunDrive struct {
