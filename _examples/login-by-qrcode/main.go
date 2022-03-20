@@ -26,11 +26,11 @@ import (
 // 扫码登录
 func main() {
 	ins := aliyundrive.New(
-	// aliyundrive.WithLogger(aliyundrive.NewLoggerStdout(), aliyundrive.LogLevelTrace),
+		// aliyundrive.WithLogger(aliyundrive.NewLoggerStdout(), aliyundrive.LogLevelTrace),
 	)
 	ctx := context.TODO()
 
-	user, err := ins.Auth.LoginByQrcode(ctx, &aliyundrive.LoginByQrcodeReq{})
+	user, err := ins.Auth.LoginByQrcode(ctx, &aliyundrive.LoginUIQrCode{})
 	if err != nil {
 		panic(err)
 	}

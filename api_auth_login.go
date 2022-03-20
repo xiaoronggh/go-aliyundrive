@@ -22,13 +22,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/mdp/qrterminal"
-	qrcode2 "github.com/skip2/go-qrcode"
 )
 
 func IsTokenExpired(err error) bool {
@@ -37,9 +33,10 @@ func IsTokenExpired(err error) bool {
 
 type LoginByQrcodeReq struct {
 	SmallQrCode bool
+	UiQrCode bool
 }
 
-func (r *AuthService) LoginByQrcode(ctx context.Context, request *LoginByQrcodeReq) (*GetSelfUserResp, error) {
+func (r *AuthService) LoginByQrcode(ctx context.Context, request LoginQrCode) (*GetSelfUserResp, error) {
 	userInfo, err := r.GetSelfUser(ctx)
 	if IsTokenExpired(err) {
 		token, err := r.cli.store.Get(ctx, "")
@@ -75,7 +72,7 @@ func (r *AuthService) LoginByQrcode(ctx context.Context, request *LoginByQrcodeR
 	return r.GetSelfUser(ctx)
 }
 
-func (r *AuthService) internalLoginByQrcode(ctx context.Context, request *LoginByQrcodeReq) error {
+func (r *AuthService) internalLoginByQrcode(ctx context.Context, request LoginQrCode) error {
 	if err := r.preLogin(ctx); err != nil {
 		return err
 	}
@@ -84,51 +81,49 @@ func (r *AuthService) internalLoginByQrcode(ctx context.Context, request *LoginB
 	if err != nil {
 		return err
 	}
-
-	if request != nil && request.SmallQrCode {
-		obj, _ := qrcode2.New(qrcode.CodeContent, qrcode2.Low)
-		fmt.Print(obj.ToSmallString(false))
-	} else {
-		qrterminal.Generate(qrcode.CodeContent, qrterminal.L, os.Stdout)
+	if request == nil {
+		request = &LoginQrTerminal{}
 	}
 
+	go func() error {
+		defer request.Close()
+		for {
+			// NEW / SCANED / EXPIRED / CANCELED / CONFIRMED
+			res, err := r.queryQrCode(ctx, strconv.FormatInt(qrcode.T, 10), qrcode.Ck)
+			if err != nil {
+				return err
+			}
+			switch res.QrCodeStatus {
+			case "NEW":
+				request.EventNew(res)
+			case "SCANED":
+				request.EventScanned(res)
+			case "EXPIRED":
+				request.EventExpired(res)
+				return fmt.Errorf("二维码过期")
+			case "CANCELED":
+				request.EventCanceled(res)
+				return fmt.Errorf("取消登录")
+			case "CONFIRMED":
+				request.EventConfirmed(res)
+				biz := res.BizAction.PdsLoginResult
+				if err := r.confirmLogin(ctx, biz.AccessToken); err != nil {
+					return err
+				}
+				if err := r.cli.store.Set(ctx, &Token{AccessToken: biz.AccessToken, RefreshToken: biz.RefreshToken, ExpiredAt: time.Now().Add(time.Second * time.Duration(biz.ExpiresIn))}); err != nil {
+					return err
+				}
+				return nil
+			default:
+				panic(res)
+			}
+
+			time.Sleep(time.Second)
+		}
+	}()
+	request.Show(qrcode.CodeContent)
 	fmt.Println("请用阿里云盘 App 扫码")
-
-	scaned := false
-	for {
-		// NEW / SCANED / EXPIRED / CANCELED / CONFIRMED
-		res, err := r.queryQrCode(ctx, strconv.FormatInt(qrcode.T, 10), qrcode.Ck)
-		if err != nil {
-			return err
-		}
-
-		switch res.QrCodeStatus {
-		case "NEW":
-
-		case "SCANED":
-			if !scaned {
-				fmt.Println("扫描成功, 请在手机上根据提示确认登录")
-			}
-			scaned = true
-		case "EXPIRED":
-			return fmt.Errorf("二维码过期")
-		case "CANCELED":
-			return fmt.Errorf("取消登录")
-		case "CONFIRMED":
-			biz := res.BizAction.PdsLoginResult
-			if err := r.confirmLogin(ctx, biz.AccessToken); err != nil {
-				return err
-			}
-			if err := r.cli.store.Set(ctx, &Token{AccessToken: biz.AccessToken, RefreshToken: biz.RefreshToken, ExpiredAt: time.Now().Add(time.Second * time.Duration(biz.ExpiresIn))}); err != nil {
-				return err
-			}
-			return nil
-		default:
-			panic(res)
-		}
-
-		time.Sleep(time.Second)
-	}
+	return err
 }
 
 func (r *AuthService) preLogin(ctx context.Context) error {
