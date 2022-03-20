@@ -27,7 +27,7 @@ func main() {
 	ins := aliyundrive.New()
 	ctx := context.TODO()
 
-	user, err := ins.Auth.LoginByQrcode(ctx)
+	user, err := ins.Auth.LoginByQrcode(ctx, nil)
 	if err != nil {
 		panic(err)
 	}
