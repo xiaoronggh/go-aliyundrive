@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 xiaoronggh
+ * Copyright 2022 chyroc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ func IsTokenExpired(err error) bool {
 
 type LoginByQrcodeReq struct {
 	SmallQrCode bool
-	UiQrCode bool
+	UiQrCode    bool
 }
 
 func (r *AuthService) LoginByQrcode(ctx context.Context, request LoginQrCode) (*GetSelfUserResp, error) {

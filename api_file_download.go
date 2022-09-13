@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 xiaoronggh
+ * Copyright 2022 chyroc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@ import (
 
 	"github.com/schollz/progressbar/v3"
 
-	"github.com/xiaoronggh/go-aliyundrive/internal/helper_tool"
 	runewidth "github.com/mattn/go-runewidth"
+	"github.com/xiaoronggh/go-aliyundrive/internal/helper_tool"
 )
 
 // GetFile 获取文件信息

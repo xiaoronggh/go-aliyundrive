@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 xiaoronggh
+ * Copyright 2022 chyroc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ func (r *FileService) UploadFile(ctx context.Context, request *UploadFileReq) (*
 		bar := progressbar.DefaultBytes(fileInfo.Size(), runewidth.FillRight(path.Base(fileInfo.Name()), 40))
 		reader := progressbar.NewReader(file, bar)
 		return r.UploadStream(ctx, request.DriveID, request.ParentID, path.Base(fileInfo.Name()), io.Reader(&reader), fileInfo.Size())
-	} 
+	}
 	return r.UploadStream(ctx, request.DriveID, request.ParentID, path.Base(fileInfo.Name()), file, fileInfo.Size())
 }
 

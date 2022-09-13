@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 xiaoronggh
+ * Copyright 2022 chyroc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import (
 // 扫码登录
 func main() {
 	ins := aliyundrive.New(
-		// aliyundrive.WithLogger(aliyundrive.NewLoggerStdout(), aliyundrive.LogLevelTrace),
+	// aliyundrive.WithLogger(aliyundrive.NewLoggerStdout(), aliyundrive.LogLevelTrace),
 	)
 	ctx := context.TODO()
 
