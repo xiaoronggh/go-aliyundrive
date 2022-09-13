@@ -44,9 +44,9 @@ func (r *FileService) UploadFile(ctx context.Context, request *UploadFileReq) (*
 	if request.ShowProgressBar {
 		bar := progressbar.DefaultBytes(fileInfo.Size(), runewidth.FillRight(path.Base(fileInfo.Name()), 40))
 		reader := progressbar.NewReader(file, bar)
-		return r.UploadStream(ctx, request.DriveID, request.ParentID, path.Base(fileInfo.Name()), io.Reader(&reader), fileInfo.Size())
+		return r.UploadStream(ctx, request.DriveID, request.ParentID, path.Base(fileInfo.Name()), io.Reader(&reader), fileInfo.Size(), request.CheckNameMode)
 	}
-	return r.UploadStream(ctx, request.DriveID, request.ParentID, path.Base(fileInfo.Name()), file, fileInfo.Size())
+	return r.UploadStream(ctx, request.DriveID, request.ParentID, path.Base(fileInfo.Name()), file, fileInfo.Size(), request.CheckNameMode)
 }
 
 type UploadFileReq struct {
@@ -54,7 +54,8 @@ type UploadFileReq struct {
 	ParentID        string
 	FilePath        string
 	ShowProgressBar bool // 展示上传进度条
-
+	// 默认为 auto_rename 自动重命名，overwrite 覆盖， refuse 拒绝
+	CheckNameMode string // 上传文件的模式
 }
 
 type UploadFileResp struct {
@@ -85,14 +86,18 @@ type UploadFileResp struct {
 }
 
 // UploadStream 从流上传文件
-func (r *FileService) UploadStream(ctx context.Context, driveID, parentID, name string, stream io.Reader, streamSize int64) (*UploadFileResp, error) {
+func (r *FileService) UploadStream(ctx context.Context, driveID, parentID, name string, stream io.Reader,
+	streamSize int64, checkNameMode string) (*UploadFileResp, error) {
+	if len(checkNameMode) == 0 {
+		checkNameMode = "auto_rename"
+	}
 	proofResp, err := r.createFileWithProof(ctx, &createFileWithProofReq{
 		DriveID:       driveID,
 		PartInfoList:  makePartInfoList(streamSize),
 		ParentFileID:  parentID,
 		Name:          name,
 		Type:          "file",
-		CheckNameMode: "auto_rename",
+		CheckNameMode: checkNameMode,
 		Size:          streamSize,
 		PreHash:       "",
 	})
